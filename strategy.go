@@ -32,7 +32,6 @@ type Strategy struct {
 	WaitMinutes       int              `json:"waitMinutes"`
 	Profit            fixedpoint.Value `json:"profit,omitempty"`
 
-	Counter      int
 	ActiveOrders *bbgo.ActiveOrderBook
 	types.Market `json:"-" yaml:"-"`
 }
@@ -60,7 +59,18 @@ func (s *Strategy) Subscribe(session *bbgo.ExchangeSession) {
 }
 
 func (s *Strategy) InstanceID() string {
-	return fmt.Sprintf("%s-%s-%s-%d-%d-%d", ID, s.Symbol, s.MaxDistance, s.Quantity, s.Gap, s.MaxDistance)
+	return fmt.Sprintf(
+		"%s-%s-%s-%d-%d-%d-%d-%d-%d",
+		ID,
+		s.Symbol,
+		s.MaxDistance,
+		s.Quantity,
+		s.Gap,
+		s.MaxDistance,
+		s.MaxNumberOfOrders,
+		s.WaitAfter,
+		s.WaitMinutes,
+	)
 }
 
 func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.ExchangeSession) error {
