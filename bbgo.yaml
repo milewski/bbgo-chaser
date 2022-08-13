@@ -1,0 +1,33 @@
+---
+build:
+  dir: build
+  imports:
+    - github.com/milewski/bbgo-chaser
+  targets:
+    - name: chaser-linux
+      os: linux
+      arch: amd64
+    - name: chaser-darwin
+      os: darwin
+      arch: amd64
+
+exchangeStrategies:
+  - on: binance
+    chaser:
+      symbol: BTCBUSD
+      quantity: 0.066
+      # gap: 50
+      profit: 1
+      maxDistance: 15
+      maxNumberOfOrders: 4
+      waitAfter: 2
+      waitMinutes: 15
+
+sessions:
+  binance:
+    name: binance
+    exchange: binance
+    envVarPrefix: BINANCE
+    takerFeeRate: 0.0
+    makerFeeRate: 0.0
+    orderExecutor: { }

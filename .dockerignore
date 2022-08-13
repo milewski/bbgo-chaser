@@ -1,0 +1,6 @@
+*
+!cmd*
+!strategy.go
+!go.*
+!Makefile
+!bbgo.yaml

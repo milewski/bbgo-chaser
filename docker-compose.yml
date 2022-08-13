@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  go:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: unless-stopped
+    volumes:
+      - ./bbgo.yaml:/bbgo.yaml
+      - ./database.sqlite3:/database.sqlite3
