@@ -25,11 +25,12 @@ type Strategy struct {
 
 	Symbol            string           `json:"symbol"`
 	Quantity          fixedpoint.Value `json:"quantity"`
-	Gap               fixedpoint.Value `json:"gap"`
+	Gap               fixedpoint.Value `json:"gap,omitempty"`
 	MaxDistance       fixedpoint.Value `json:"maxDistance"`
 	MaxNumberOfOrders int              `json:"maxNumberOfOrders"`
 	WaitAfter         int              `json:"waitAfter"`
 	WaitMinutes       int              `json:"waitMinutes"`
+	Profit            fixedpoint.Value `json:"profit,omitempty"`
 
 	Counter      int
 	ActiveOrders *bbgo.ActiveOrderBook
@@ -79,6 +80,17 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 	blockNewOrders := false
 	maximumAllowedOpenSellOrders := s.WaitAfter
 	openSellOrdersCount := 0
+
+	if s.Gap.IsZero() {
+		s.Gap = s.Profit.Div(s.Quantity)
+	}
+
+	if s.Gap.IsZero() && s.Profit.IsZero() {
+		log.Errorf("Please set either Gap or Profit.")
+		return nil
+	}
+
+	log.Infof("Gap between buy and sell: %v %s", s.Gap, s.QuoteCurrency)
 
 	session.UserDataStream.OnTradeUpdate(func(trade types.Trade) {
 		profitStats.AddTrade(trade)
