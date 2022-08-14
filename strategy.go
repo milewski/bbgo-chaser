@@ -91,6 +91,8 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 	maximumAllowedOpenSellOrders := s.WaitAfter
 	openSellOrdersCount := 0
 
+	var timer *time.Timer
+
 	if s.Gap.IsZero() {
 		s.Gap = s.Profit.Div(s.Quantity)
 	}
@@ -114,6 +116,13 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 
 			openSellOrdersCount = 0
 
+			if timer != nil {
+				timer.Stop()
+				timer = nil
+			}
+
+			s.ActiveOrders.Remove(order)
+
 			return
 
 		}
@@ -123,7 +132,7 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 		sellPrice := order.Price.Add(s.Gap)
 
 		if currentPrice > sellPrice {
-			println("Current price is higher than the order price... selling at current price instead.")
+			log.Infof("Current price is higher than the order price... selling at current price instead.")
 			sellPrice = currentPrice
 		}
 
@@ -159,6 +168,7 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 			 */
 			if currentPrice.Sub(order.Price.Add(s.Gap)) >= s.MaxDistance {
 				orderExecutor.CancelOrders(context.Background(), order)
+				s.ActiveOrders.Remove(order)
 			}
 
 		}
@@ -183,7 +193,7 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 
 			if blockNewOrders == false {
 
-				time.AfterFunc(time.Duration(s.WaitMinutes)*time.Minute, func() {
+				timer = time.AfterFunc(time.Duration(s.WaitMinutes)*time.Minute, func() {
 					log.Infof("Lifting transaction ban...")
 					blockNewOrders = false
 					maximumAllowedOpenSellOrders += s.WaitAfter
