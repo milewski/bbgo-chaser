@@ -104,10 +104,6 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 
 	log.Infof("Gap between buy and sell: %v %s", s.Gap, s.QuoteCurrency)
 
-	session.UserDataStream.OnTradeUpdate(func(trade types.Trade) {
-		profitStats.AddTrade(trade)
-	})
-
 	s.ActiveOrders.OnFilled(func(order types.Order) {
 
 		if order.Side == types.SideTypeSell {
@@ -115,6 +111,7 @@ func (s *Strategy) Run(ctx context.Context, _ bbgo.OrderExecutor, session *bbgo.
 			log.Infof("Profit: %s %s", profitStats.AccumulatedNetProfit.String(), profitStats.QuoteCurrency)
 
 			openSellOrdersCount = 0
+			blockNewOrders = false
 
 			if timer != nil {
 				timer.Stop()
