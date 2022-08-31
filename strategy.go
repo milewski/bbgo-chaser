@@ -21,8 +21,6 @@ func init() {
 }
 
 type Strategy struct {
-	Notifiability *bbgo.Notifiability
-
 	Symbol            string           `json:"symbol"`
 	Quantity          fixedpoint.Value `json:"quantity"`
 	Gap               fixedpoint.Value `json:"gap,omitempty"`
